@@ -20,19 +20,24 @@ async def on_message(message):
     if message.content.startswith('$UserAnalyze'):
         data = []
         async for mesg in message.channel.history(limit = 1000):
-            data.append(mesg.author)
+            if mesg.author != client.user:
+                data.append(mesg.author)
         
-        count = pandas.DataFrame(dict(Counter(data)), columns=['Author', 'count'])
-        count['rank'] = list([i for i in range(1, len(count) + 1)])
+       
+        count = dict(Counter(data))
+        count = {'Author' : list(count.keys()), 'Count' : list(count.values())}
+        count = pandas.DataFrame.from_dict(count)
+
         if len(count) == 0:
             await message.channel.send('Nobody here')
-        
-        else:
+
+        else: 
             txt = ''
+            count = count.sort_values(by = 'Count', ascending = False).reset_index(inplace = False)
+            count['Rank'] = list(i +1 for i in range(len(count)))
             for i in range(len(count)):
-                txt += str(count.Author[i]) + ' - ' + str(count.rank[i]) + ', '
-
+                txt += str(count.Author[i]) + ' - ' + str(count.Rank[i]) + ', '
+                        
             await message.channel.send(txt)
-       
 
-client.run(os.getenv('TOKEN'))
+client.run(os.environ['TOKEN'])
