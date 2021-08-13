@@ -18,6 +18,8 @@ async def on_message(message):
         await message.channel.send('Hello!')
 
     if message.content.startswith('$UserAnalyze'):
+        if message.author.guild_permissions.manage_messages != True:
+            return await message.channel.send('You do not have the permissions necessary to view the report!')
         data = []
         async for mesg in message.channel.history(limit = 1000):
             if mesg.author != client.user:
@@ -29,7 +31,7 @@ async def on_message(message):
         count = pandas.DataFrame.from_dict(count)
 
         if len(count) == 0:
-            await message.channel.send('Nobody here')
+            await message.author.send('Nobody here')
 
         else: 
             txt = ''
@@ -38,7 +40,8 @@ async def on_message(message):
             for i in range(len(count)):
                 txt += str(count.Author[i]) + ' - ' + str(count.Rank[i]) + ', '
                         
-            await message.channel.send(txt)
+            await message.channel.send('Check your DMs!')
+            await message.author.send(txt)
 
 TOKEN = os.getenv("TOKEN")
 client.run(TOKEN)
